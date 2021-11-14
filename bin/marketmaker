@@ -51,6 +51,7 @@ parser.add_argument("--account-address", type=PublicKey,
                     help="address of the specific account to use, if more than one available")
 parser.add_argument("--notify-errors", type=mango.parse_notification_target, action="append", default=[],
                     help="The notification target for error events")
+parser.add_argument("--ftx-hedging", type=str, help="Hedge on FTX Market")
 parser.add_argument("--dry-run", action="store_true", default=False,
                     help="runs as read-only and does not perform any transactions")
 args: argparse.Namespace = mango.parse_args(parser)
@@ -128,6 +129,9 @@ if args.hedging_market is not None:
                                             hedging_market_operations, args.hedging_max_price_slippage_factor,
                                             args.hedging_max_chunk_quantity, target_balance)
 
+if args.ftx_hedging is not None:
+    underlying_market: mango.PerpMarket = market
+    hedger = mango.hedging.FtxHedger(group, underlying_market)
 
 order_reconciler = mango.marketmaking.ToleranceOrderReconciler(
     args.existing_order_tolerance, args.existing_order_tolerance)
